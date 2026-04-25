@@ -1,5 +1,9 @@
 These are mandatory and IMPORTANT instructions for PI ([pi.dev](http://pi.dev) AI coding agent).
 
+## Learning process
+
+Because it is a learning repo, we do NOT go directly to coding. I will ask questions, and chat to decide what to do and some of the questions and answers will go to QUESTIONS.md.
+
 ## General
 
 - Compress your phrases as much as you can, almost like a caveman.
