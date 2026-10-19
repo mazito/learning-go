@@ -11,3 +11,6 @@
 - [ ] Port the mutation example (patch-object) to the new declarative TOML style (`[type.X]`, `source` bindings, explicit emit).
 - [ ] CUE-FUNCTIONS.md: answer the user comment blocks (► Your comments) and §8 open questions, or close the CUE track if TOML wins.
 - [ ] get/patch `.cue` examples: migrate to `shared/` import and `#IsObject`/`#IsArray`, or mark as legacy experiments.
+- [ ] Bag-object model: fix the bag shape per step kind in the spec (`select` → `{rows, sql.where, length}`, `count` → `{count, sql.where}`; add `sql.order_by`? `exec` → `{affected}`?) and whether bag paths may address `params.*` with the same syntax.
+- [ ] Spec: `sql.where` reuse = predicate plan + binds (never text); `count` runs with the select's binds.
+- [ ] Write the compile-pass check list (aspects doc C1) and the run-file format (C2) into the spec.

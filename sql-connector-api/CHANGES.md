@@ -46,3 +46,26 @@
 - (session files committed together in this session's closing commit)
 
 ---
+# CHANGES.md - Session: query-example.toml bag-object model + aspects doc
+
+## Date: 2026-10-17
+## Branch: main
+
+### Files Modified
+1. **sql-connector-api/query-example.toml** — bag-object model (user edit): step returns a typed bag object per kind; `count` reuses `where = "_invoices.sql.where"`; emit reads `_invoices.rows` / `_total.count` / `_invoices.length`; duplicated filters/search removed
+2. **sql-connector-api/query-example-toml-aspects.md** — §0 bag-object model (adopted), A1/A2 and D1/D2 marked done, C1/C2/C3/C4 updated for bag paths
+3. **sql-connector-api/MEMO.md** — rewritten with this closing session only
+4. **sql-connector-api/docs/memos/HISTORY.md** — research-session MEMO prepended via `cat`
+5. **sql-connector-api/LEARNINGS.md** — bag-object learning appended
+6. **sql-connector-api/TODO.md** — bag-shape items appended
+
+### Files Created
+1. **sql-connector-api/query-example-toml-aspects.md** — readability / stricter definition / compile-pass + run-step notes for the TOML example (two-phase runtime)
+
+### Commits
+- `306d468` - scapi: user drafts (DRAFT-V2/V3, get/patch object TOML examples) + AGENTS.md update
+- `518f5b0` - scapi: query-example-toml-aspects.md — readability / stricter definition / compile-pass + run-step notes
+- `cbbdbd8` - scapi: query-example.toml bag-object model; aspects doc updated
+- (session files in this session's closing commit)
+
+---

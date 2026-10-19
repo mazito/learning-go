@@ -40,3 +40,7 @@ Why: hand-edited SQL in patch-object-example.cue broke vet twice.
 ## 2026-10-17 — TOML: comments are `#`, a table header may appear once, inline tables are multi-line in go-toml/v2
 Rule: `//` is a parse error; a second `[type]` header is `table type already exists` (use `[type.X]` subtables or one header); multi-line `X = { … }` inline tables are accepted by go-toml/v2 v2.4.3 and tomli 2.4.1 (TOML 1.1 draft) — fine for the Go backend, not strict 1.0. Statements still never end with `,`.
 Why: query-example.toml needed four passes; validated each with both parsers.
+
+## 2026-10-17 — Spec design: make step outputs ordinary structs, not special references
+Rule: when several features need "reuse something from an earlier step" (WHERE reuse, rowset→array coercion, row count), give each step a typed bag object with a fixed shape per kind and let later steps read fields by plain path (`_x.sql.where`, `_x.rows`, `_x.length`). One rule, compile-time checkable, extensible.
+Why: the first design had three ad-hoc mechanisms (`where = "_x"`, implicit rowset coercion, a `.length` pseudo-field); the user's bag-object version replaced all three and made every `source` path type-checkable at startup.
