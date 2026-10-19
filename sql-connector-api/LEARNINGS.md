@@ -16,3 +16,27 @@ Why: expand_limits/expand_value_rows design in DRAFT.md.
 Rule: quick-parse draft TOML blocks with a script (tomli + Go parsers) before baking them into a spec.
 Why: caught missing `=`, trailing commas, backslash and copy-paste bugs the eye misses.
 
+
+## 2026-10-17 — CUE: a disjunction inside a pattern constraint fans out exponentially
+Rule: never put `#A | #B | #C` as the value of a pattern constraint (`[string]: #A | #B | #C`) when another disjunction or comprehension iterates that struct. Keep `fields: [string]: #Field` flat; declare a shape once and derive from it.
+Why: `fields?: [string]: #Field | #IsObject | #IsArray` + `returns: #IsObject | #IsArray` made `cue vet` take > 25 s on a 7-field shape (2 × 3^7 disjuncts); flat version: 23 ms. Bisection in `docs/cue-lab/07-declarative/perf_note.md`.
+
+## 2026-10-17 — CUE: errors in hidden fields do not fail `cue vet`
+Rule: put every CHECK in a regular field; use hidden `_x` fields only for inputs. Also: hidden fields are package-private, so a shared definition takes cross-package inputs via a definition field (`#params`), never `_params`.
+Why: a bad `#Ref` path hidden in `_root` passed vet silently; `shared.#SelectStep & {_params: params}` from another package is a different `_params`.
+
+## 2026-10-17 — CUE: `#A | #B` needs a fixed constant to discriminate
+Rule: every variant of a disjunction carries a required constant (`type: "object"`, `fn: "set"`). Optional-only differences cannot disambiguate: an optional field with a bottom value does not invalidate a struct.
+Why: `#IsObject | #IsArray` differing only in optional `min?/max?` evaluated to an ambiguous "incomplete value".
+
+## 2026-10-17 — CUE: `*a | S` lets the default bypass the set
+Rule: to default INSIDE an allowed set write `(*a | string) & S`, not `*a | S`.
+Why: `source: *"params.columns" | #ArrayParamPath` accepted `columns: {}` with no `params.columns` param.
+
+## 2026-10-17 — CUE: multiline string indentation is the closing-quote indentation
+Rule: every non-empty line inside `"""` must start with the exact whitespace that precedes the closing `"""`; mixing tabs and spaces → `non-matching whitespace for multiline strings`.
+Why: hand-edited SQL in patch-object-example.cue broke vet twice.
+
+## 2026-10-17 — TOML: comments are `#`, a table header may appear once, inline tables are multi-line in go-toml/v2
+Rule: `//` is a parse error; a second `[type]` header is `table type already exists` (use `[type.X]` subtables or one header); multi-line `X = { … }` inline tables are accepted by go-toml/v2 v2.4.3 and tomli 2.4.1 (TOML 1.1 draft) — fine for the Go backend, not strict 1.0. Statements still never end with `,`.
+Why: query-example.toml needed four passes; validated each with both parsers.

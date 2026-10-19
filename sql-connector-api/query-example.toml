@@ -1,0 +1,84 @@
+# query-example.toml — declarative list query, no SQL
+
+method      = "get_invoices"
+title       = "List invoices"
+description = "Invoice list with filters, search, order and paging"
+version     = 1
+
+##
+##  Types = DATA SHAPES only (what the client sends, what the result returns).
+##  Binding config (source/over/default) lives in the step, not here.
+##
+[type.FiltersParam]
+type = "array"
+max  = 50
+fields = {
+  column   = {type = "string",  required = true},
+  operator = {type = "string",  required = true, enum = ["EQ","NEQ","GT","GTE","LT","LTE","IN","NOT_IN","LIKE","IS_NULL","IS_NOT_NULL","BETWEEN"]},
+  value    = {type = "json"}
+}
+
+[type.OrderByParam]
+type = "array"
+max  = 10
+fields = {
+  column = {type = "string", required = true},
+  dir    = {type = "string", default = "asc", enum = ["asc", "desc"]}
+}
+
+[type.InvoicesResult]
+type = "array"
+fields = {
+  id      = {type = "integer"},
+  uid     = {type = "uuid"},
+  vrs     = {type = "integer"},
+  client  = {type = "string", source = "client_name"},   # source = column, when it differs
+  address = {type = "string"},
+  notes   = {type = "text"},
+  total   = {type = "double"}
+}
+
+##
+##  JSON-RPC contract
+##
+[params]
+filters  = {type = "FiltersParam"}
+q        = {type = "string", max = 200}
+order_by = {type = "OrderByParam"}
+limit    = {type = "integer", default = 1000, max = 5000}
+offset   = {type = "integer", default = 0}
+
+[result]
+invoices = {type = "InvoicesResult"}
+total    = {type = "integer"}   # rows matching filters/search, all pages
+count    = {type = "integer"}   # rows in this page
+
+[errors]
+BAD_REQUEST = "Bad params for request"
+
+##
+##  Steps
+##
+[[step]]
+select   = "_invoices"
+from     = "invoices"
+returns  = {type = "InvoicesResult"}
+filters  = {source = "params.filters",  allow = ["id", "client", "total"]}
+search   = {source = "params.q",        over  = ["client", "address", "notes"]}
+order_by = {source = "params.order_by", default = [{column = "id", dir = "asc"}]}
+limit    = {source = "params.limit"}
+offset   = {source = "params.offset"}
+
+[[step]]
+count   = "_total"                     # COUNT(*) over the same WHERE as the select
+from    = "invoices"
+filters = {source = "params.filters",  allow = ["id", "client", "total"]}
+search  = {source = "params.q",        over  = ["client", "address", "notes"]}
+
+[[step]]
+emit = "result"
+returns = {
+  invoices = {source = "_invoices", type = "InvoicesResult"},
+  total    = {source = "_total"},                 # scalar rowset -> integer
+  count    = {source = "_invoices.length"}        # rows in this page
+}
