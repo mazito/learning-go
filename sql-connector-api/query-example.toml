@@ -59,8 +59,15 @@ BAD_REQUEST = "Bad params for request"
 ##
 ##  Steps
 ##
+# NOTE: 
+# Step returns an object inserted into the bag using the given step name
+# The return shape dependes on the step 'kind'
+# - kind 'select' returns {rows: any[], sql: {where: string}, length: int}
+# - kind 'count'  returns {count: int, sql {where: string}}
+# The object in the bag can be used by following steps
+#
 [[step]]
-select   = "_invoices"
+select   = "_invoices" 
 from     = "invoices"
 returns  = {type = "InvoicesResult"}
 filters  = {source = "params.filters",  allow = ["id", "client", "total"]}
@@ -70,15 +77,14 @@ limit    = {source = "params.limit"}
 offset   = {source = "params.offset"}
 
 [[step]]
-count   = "_total"                     # COUNT(*) over the same WHERE as the select
+count   = "_total" 
 from    = "invoices"
-filters = {source = "params.filters",  allow = ["id", "client", "total"]}
-search  = {source = "params.q",        over  = ["client", "address", "notes"]}
+where = "_invoices.sql.where" # COUNT(*) over the same WHERE as the select
 
 [[step]]
 emit = "result"
 returns = {
-  invoices = {source = "_invoices", type = "InvoicesResult"},
-  total    = {source = "_total"},                 # scalar rowset -> integer
-  count    = {source = "_invoices.length"}        # rows in this page
+  invoices = {source = "_invoices.rows"},
+  total    = {source = "_total.count"},  # scalar rowset -> integer
+  count    = {source = "_invoices.length"}  # rows in this page
 }
