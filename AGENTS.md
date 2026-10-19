@@ -6,7 +6,6 @@ Because it is a learning repo, we do NOT go directly to coding. I will ask quest
 
 ## General
 
-- Compress your phrases as much as you can, almost like a caveman.
 - Give brief and to the point responses, avoid long answers.
 - Also when reasoning, avoid long phrases. Be Concise.
 
